@@ -1,0 +1,107 @@
+;
+; parsecvusba.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=USB
+ClassGuid={36fc9e60-c465-11cf-8056-444553540000}
+Provider=%ManufacturerName%
+CatalogFile=parsecvusba.cat
+DriverVer = 07/15/2022,0.1.1.0
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+parsecvusba_Device_CoInstaller_CopyFiles = 11
+
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+parsecvusba.sys  = 1,,
+;
+
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NTamd64
+
+[Standard.NTamd64]
+%parsecvusba.DeviceDesc%=parsecvusba_Device, Root\Parsec\VUSBA
+
+[parsecvusba_Device.NT]
+CopyFiles=Drivers_Dir
+
+[parsecvusba_Device.NT.hw]
+AddReg=parsecvusba_Device_AddReg
+
+; Add persisted slots key skeleton under device key
+[parsecvusba_Device_AddReg]
+HKR,"PersistedSlots","RestoreOnStartup",0x00010003,1
+HKR,"PersistedSlots\01\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\02\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\03\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\04\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\05\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\06\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\07\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\08\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\09\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\0A\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\0B\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\0C\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\0D\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\0E\ControlEndpoint",,0x00000010,
+HKR,"PersistedSlots\0F\ControlEndpoint",,0x00000010,
+
+;[parsecvusba_Device_AddReg.Security]
+;"D:P(OD;CI;KA;;;BA)(OD;CI;KA;;;BU)"
+
+[Drivers_Dir]
+parsecvusba.sys
+
+;-------------- Service installation
+[parsecvusba_Device.NT.Services]
+AddService = parsecvusba,%SPSVCINST_ASSOCSERVICE%, parsecvusba_Service_Inst
+
+; -------------- parsecvusba driver install sections
+[parsecvusba_Service_Inst]
+DisplayName    = %parsecvusba.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\parsecvusba.sys
+
+;
+;--- parsecvusba_Device Coinstaller installation ------
+;
+
+[parsecvusba_Device.NT.CoInstallers]
+AddReg=parsecvusba_Device_CoInstaller_AddReg
+CopyFiles=parsecvusba_Device_CoInstaller_CopyFiles
+
+[parsecvusba_Device_CoInstaller_AddReg]
+;
+
+
+[parsecvusba_Device_CoInstaller_CopyFiles]
+;
+
+
+[parsecvusba_Device.NT.Wdf]
+KmdfService =  parsecvusba, parsecvusba_wdfsect
+[parsecvusba_wdfsect]
+KmdfLibraryVersion = 1.15
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="Parsec Cloud, Inc."
+DiskName = "Parsec VUSBA Installation Disk"
+parsecvusba.DeviceDesc = "Parsec Virtual USB Adapter"
+parsecvusba.SVCDESC = "Parsec Virtual USB Adapter Service"
+
